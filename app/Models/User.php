@@ -3,15 +3,27 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use App\Enums\RoleEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles;
 
+    protected static function booted()
+    {
+        static::creating(function ($user) {
+            if (!Str::contains(implode(" ", $_SERVER['argv'] ?? []), 'make:filament-user')) {
+                $user->assignRole(RoleEnum::CUSTOMER->value);
+            }
+        });
+    }
     /**
      * The attributes that are mass assignable.
      *
@@ -45,4 +57,6 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+   
 }
