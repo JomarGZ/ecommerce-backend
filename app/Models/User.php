@@ -68,5 +68,11 @@ class User extends Authenticatable implements FilamentUser
         ];
     }
 
+    public function setBasePriceAttribute($value)
+    {
+        return $this->attributes['base_price'] = (int) $value * 100;
+    }
+
+   
    
 }
