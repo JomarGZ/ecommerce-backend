@@ -22,7 +22,7 @@ class ProductSku extends Model
 
     public function variations()
     {
-        return $this->belongsToMany(ProductSku::class, 'sku_variation_combinations');
+        return $this->belongsToMany(ProductVariation::class, 'sku_variation_combinations');
     }
-    
+   
 }

@@ -23,4 +23,5 @@ class ProductVariation extends Model
     {
         return $this->belongsToMany(ProductSku::class, 'sku_variation_combinations');
     }
+    
 }
