@@ -56,7 +56,21 @@ class ProductResource extends Resource
                     ->numeric()
                     ->prefix('$')
                     ->minValue(1)
-                    ->live(),
+                    ->live()
+                    ->afterStateUpdated(function ($state, $set, Get $get) {
+                        // When base_price changes, update all SKU prices
+                        $variations = $get('variations');
+                        $productName = Str::slug($get('name'));
+        
+                        if (!empty($variations) && !empty($productName)) {
+                            $skus = self::generateSkusFromVariations(
+                                $productName,
+                                collect($variations),
+                                $state // Updated base_price
+                            );
+                            $set('skus', $skus);
+                        }
+                    }),
                  
                 MarkdownEditor::make('description')->required(),
                 Checkbox::make('published')->required(),
@@ -74,25 +88,48 @@ class ProductResource extends Resource
                             ->live(),
                         
                         Select::make('variation_value')
-                            ->options(function (Get $get): array {
-                                $type = $get('variation_type');
-                                
-                                return match ($type) {
-                                    'color' => [
-                                        'red' => 'Red',
-                                        'blue' => 'Blue',
-                                        'green' => 'Green',
-                                    ],
-                                    'size' => [
-                                        'small' => 'Small',
-                                        'medium' => 'Medium',
-                                        'large' => 'Large',
-                                    ],
-                                    default => [],
-                                };
-                            })
-                            ->required()
-                            ->searchable(),
+                        ->options(function (Get $get, $state): array {
+                            $type = $get('variation_type');
+                            $allVariations = $get('../../variations'); // Get all repeater items
+                            
+                            // Define all possible options
+                            $allOptions = match ($type) {
+                                'color' => [
+                                    'red' => 'Red',
+                                    'blue' => 'Blue',
+                                    'green' => 'Green',
+                                ],
+                                'size' => [
+                                    'small' => 'Small',
+                                    'medium' => 'Medium',
+                                    'large' => 'Large',
+                                ],
+                                default => [],
+                            };
+                    
+                            // If no type selected or no variations, return all options
+                            if (empty($type)) {
+                                return $allOptions;
+                            }
+                    
+                            // Filter out already selected values of the same type
+                            $usedValues = collect($allVariations)
+                                ->where('variation_type', $type) // Only check same type
+                                ->pluck('variation_value')
+                                ->filter() // Remove null/empty
+                                ->unique() // Avoid duplicates
+                                ->toArray();
+                    
+                            // Keep the current value (so it doesn't disappear when editing)
+                            if ($state && in_array($state, $usedValues)) {
+                                return $allOptions;
+                            }
+                    
+                            return array_diff_key($allOptions, array_flip($usedValues));
+                        })
+                        ->required()
+                        ->searchable()
+                        ->live(), // Ensure reactivity
 
                         FileUpload::make('product_image')
                             ->required()
@@ -101,6 +138,7 @@ class ProductResource extends Resource
                             ->directory('product-variations'),
                         TextInput::make('price_adjustment')
                             ->numeric()
+                            ->minValue(1)
                             ->default(0)
                     ])
                     ->live()
@@ -242,8 +280,7 @@ class ProductResource extends Resource
             $finalPrice = $basePrice;
             // Sort by variation type (color first, then size, etc.)
             ksort($combination);
-            dump($finalPrice);
-            dump($basePrice);
+        
             // Create the SKU code
             $skuSuffix = implode('-', $combination);
             $skuCode = $productName . '-' . $skuSuffix;
