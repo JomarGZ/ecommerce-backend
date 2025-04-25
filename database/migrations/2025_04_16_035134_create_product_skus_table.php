@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('product_skus', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Product::class)->nullable();
+            $table->foreignIdFor(Product::class)->nullable()->constrained()->cascadeOnDelete();
             $table->string('sku_code')->unique();
             $table->unsignedBigInteger('price')->default(0);
             $table->unsignedBigInteger('stock')->default(0);

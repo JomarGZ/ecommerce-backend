@@ -19,6 +19,7 @@ use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\CheckboxColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -51,7 +52,7 @@ class ProductResource extends Resource
                         
                     Select::make('category_id')
                         ->label('Category')
-                        ->options(Category::all()->pluck('name', 'id'))
+                        ->relationship('category', 'name')
                         ->required()
                         ->searchable()
                         ->preload(),
@@ -134,6 +135,7 @@ class ProductResource extends Resource
 
                         FileUpload::make('product_image')
                             ->required()
+                            ->image()
                             ->visible(fn (Get $get): bool => $get('variation_type') === 'color')
                             ->disk('public')
                             ->directory('product-variations'),
@@ -210,7 +212,8 @@ class ProductResource extends Resource
             ->columns([
                 TextColumn::make('id'),
                 TextColumn::make('name'),
-                TextColumn::make('published'),
+                TextColumn::make('category.name'),
+                CheckboxColumn::make('published'),
             ])
             ->filters([
                 //

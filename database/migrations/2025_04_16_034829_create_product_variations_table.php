@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('product_variations', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Product::class)->nullable();
+            $table->foreignIdFor(Product::class)->nullable()->constrained()->cascadeOnDelete();
             $table->string('variation_type');
             $table->string('variation_value');
             $table->string('product_image')->nullable();
