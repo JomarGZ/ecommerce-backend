@@ -7,6 +7,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Route;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -50,10 +51,10 @@ return Application::configure(basePath: dirname(__DIR__))
                         'code' => $e->getStatusCode()
                     ], $e->getStatusCode());
                 }
-                if ($e instanceof HttpException) {
+                if ($e instanceof MethodNotAllowedHttpException) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Invalid or expired token. Please refresh the page.',
+                        'message' => "Method not allowed. This endpoint only accepts: {$e->getHeaders()['Allow']}",
                         'code' => $e->getStatusCode()
                     ], $e->getStatusCode());
                 }
