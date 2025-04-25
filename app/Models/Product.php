@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
@@ -42,5 +44,10 @@ class Product extends Model
     public function skus()
     {
         return $this->hasMany(ProductSku::class);
+    }
+
+    protected function scopeFilterByCategory(Builder $query, ?int $category): Builder
+    {
+        return $query->when($category, fn (Builder $query) => $query->where('category_id', $category));
     }
 }

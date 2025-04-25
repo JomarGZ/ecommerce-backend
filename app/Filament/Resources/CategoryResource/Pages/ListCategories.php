@@ -16,4 +16,9 @@ class ListCategories extends ListRecords
             Actions\CreateAction::make(),
         ];
     }
+
+    protected function getTableQuery(): \Illuminate\Database\Eloquent\Builder|null
+    {
+        return parent::getTableQuery()->orderByDesc('created_at');
+    }
 }

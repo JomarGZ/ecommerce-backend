@@ -173,12 +173,12 @@ class ProductResource extends Resource
                             TextInput::make('sku_code')
                                 ->required()
                                 ->unique(ignoreRecord: true)
-                                ->disabled() 
+                                ->readOnly() 
                                 ->dehydrated(), 
                             
                             TextInput::make('price')
                                 ->required()
-                                ->disabled()
+                                ->readOnly()
                                 ->numeric()
                                 ->dehydrated()
                                 ->prefix('$')

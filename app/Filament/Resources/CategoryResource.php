@@ -33,10 +33,7 @@ class CategoryResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('id'),
                 TextColumn::make('name'),
-                TextColumn::make('created_at'),
-                TextColumn::make('updated_at'),
             ])
             ->filters([
                 //
