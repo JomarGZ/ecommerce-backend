@@ -12,7 +12,7 @@ class CreateCategory extends CreateRecord
 
     protected function getRedirectUrl(): string
     {
-        return route('filament.admin.resources.categories.index');
+        return $this->previousUrl ?? $this->getResource()::getUrl('index');
     }
 
 }

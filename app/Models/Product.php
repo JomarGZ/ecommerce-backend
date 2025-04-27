@@ -46,8 +46,8 @@ class Product extends Model
         return $this->hasMany(ProductSku::class);
     }
 
-    protected function scopeFilterByCategory(Builder $query, ?int $category): Builder
+    protected function scopeFilterByCategory(Builder $query, ?array $categoryIds): Builder
     {
-        return $query->when($category, fn (Builder $query) => $query->where('category_id', $category));
+        return $query->when($categoryIds, fn (Builder $query) => $query->whereIn('category_id', $categoryIds));
     }
 }

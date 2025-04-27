@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Resources\Api\V1\Users;
+namespace App\Http\Resources\Api\V1\Users\Products;
 
+use App\Http\Resources\Api\V1\Users\ProductCategories\ProductCategoryResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -19,7 +20,7 @@ class ProductResource extends JsonResource
             'name' => $this->whenNotNull($this->name),
             'base_price' => $this->whenNotNull($this->base_price),
             'description' => $this->whenNotNull($this->description),
-            'category' =>   CategoryResource::make($this->whenLoaded('category'))
+            'category' =>   ProductCategoryResource::make($this->whenLoaded('category'))
         ];
     }
 }
